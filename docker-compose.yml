@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: async-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: async-rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  ingestion-api:
+    build:
+      context: ./src
+      dockerfile: Ingestion.Api/Dockerfile
+    container_name: ingestion-api
+    depends_on:
+      - postgres
+      - rabbitmq
+    ports:
+      - "5001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=appdb;Username=appuser;Password=apppass
+      RabbitMQ__Host: rabbitmq
+
+  processor-worker:
+    build:
+      context: ./src
+      dockerfile: Processor.Worker/Dockerfile
+    container_name: processor-worker
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=appdb;Username=appuser;Password=apppass
+      RabbitMQ__Host: rabbitmq
+
+volumes:
+  postgres_data:

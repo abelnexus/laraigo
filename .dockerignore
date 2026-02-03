@@ -1,0 +1,8 @@
+**/.git
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/appsettings.Development.json
+# Si quieres que cada build use solo su propio appsettings, 
+# puedes ignorar los de los demás proyectos aquí.
