@@ -1,6 +1,8 @@
 Ingestión y Procesamiento Asíncrono de Eventos
 Este repositorio contiene una solución escalable para la ingesta masiva de datos y su procesamiento diferido, diseñada bajo principios de Alta Disponibilidad y Resiliencia.
 
+<img width="1536" height="1024" alt="diagrama" src="https://github.com/user-attachments/assets/88f3b187-ccee-4086-aeb0-66463d17ab05" />
+
 Arquitectura de la Solución
 La solución se basa en un modelo de Arquitectura Orientada a Eventos (EDA) y utiliza el patrón Transactional Outbox para garantizar la consistencia de los datos entre la base de datos y el broker de mensajería.
 
