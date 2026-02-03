@@ -56,3 +56,13 @@ Se puede acceder al panel de administración de RabbitMQ para visualizar el fluj
 URL: http://localhost:15672
 
 Credenciales: guest / guest
+
+## 📝 Notas de Compatibilidad (Multi-plataforma)
+
+El proyecto incluye un archivo `.gitattributes` para asegurar que los scripts de shell (`.sh`) mantengan el formato de fin de línea `LF`, evitando errores de ejecución en entornos Docker sobre Windows.
+
+**Si ejecutas en Windows y tienes problemas con el script de carga, puedes usar este comando en PowerShell:**
+
+```powershell
+1..50 | ForEach-Object { Invoke-RestMethod -Uri "http://localhost:5001/Ingestion/ingest" -Method Post -ContentType "application/json" -Body '{"payload": "Test masivo"}' }
+```
