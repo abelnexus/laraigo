@@ -23,17 +23,16 @@ Desacoplamiento: Los componentes A y B son totalmente independientes. Esto permi
 Agnosticismo al Entorno: Toda la infraestructura está orquestada mediante Docker Compose, asegurando que el sistema se comporte de manera idéntica en desarrollo, pruebas y producción.
 
 Estructura del Proyecto
-Plaintext
+```plaintext
 ├── src/
-│ ├── Ingestion.Api/ # API de entrada de datos
-│ ├── Processor.Worker/ # Consumidor y procesador de eventos
-│ └── Ingestion.Core/ # Lógica de dominio y abstracciones
-├── docker-compose.yml # Orquestación de infraestructura y servicios
-├── stress_test.sh # Script de validación de carga concurrente
-└── README.md # Documentación técnica
-Guía de Ejecución
-Requisitos
-Docker y Docker Desktop (con soporte para Docker Compose).
+│   ├── Ingestion.Api/        # API de entrada de datos
+│   ├── Processor.Worker/     # Consumidor y procesador de eventos
+│   └── Ingestion.Core/       # Lógica de dominio y abstracciones
+│
+├── docker-compose.yml        # Orquestación de infraestructura y servicios
+├── stress_test.sh            # Script de validación de carga concurrente
+└── README.md                 # Documentación técnica
+```
 
 Despliegue
 Desde la raíz del proyecto, ejecutar:
