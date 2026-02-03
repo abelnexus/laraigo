@@ -1,69 +1,82 @@
-Ingestión y Procesamiento Asíncrono de Eventos
+# Ingestión y Procesamiento Asíncrono de Eventos
+
 Este repositorio contiene una solución escalable para la ingesta masiva de datos y su procesamiento diferido, diseñada bajo principios de Alta Disponibilidad y Resiliencia.
 
 <img width="1536" height="1024" alt="diagrama" src="https://github.com/user-attachments/assets/88f3b187-ccee-4086-aeb0-66463d17ab05" />
 
-Arquitectura de la Solución
+## Arquitectura de la Solución
+
 La solución se basa en un modelo de Arquitectura Orientada a Eventos (EDA) y utiliza el patrón Transactional Outbox para garantizar la consistencia de los datos entre la base de datos y el broker de mensajería.
 
-Componentes Principales:
-Ingestion.Api (Componente A): Endpoint REST en .NET 8 que recibe las solicitudes, las persiste en PostgreSQL y las publica en RabbitMQ. Está diseñado para liberar al cliente de forma inmediata.
+## Componentes Principales
 
-Processor.Worker (Componente B): Servicio de fondo (Background Service) que consume los mensajes de RabbitMQ de forma asíncrona, procesa la lógica de negocio y actualiza el estado en la base de datos.
+**Ingestion.Api (Componente A)**  
+Endpoint REST en .NET 8 que recibe las solicitudes, las persiste en PostgreSQL y las publica en RabbitMQ. Está diseñado para liberar al cliente de forma inmediata.
 
-RabbitMQ: Message Broker que actúa como buffer, permitiendo manejar picos de tráfico (backpressure) sin degradar el rendimiento de la API.
+**Processor.Worker (Componente B)**  
+Servicio de fondo (Background Service) que consume los mensajes de RabbitMQ de forma asíncrona, procesa la lógica de negocio y actualiza el estado en la base de datos.
 
-PostgreSQL: Almacenamiento persistente para los eventos recibidos y la tabla de Outbox.
+**RabbitMQ**  
+Message Broker que actúa como buffer, permitiendo manejar picos de tráfico (backpressure) sin degradar el rendimiento de la API.
 
-Decisiones Técnicas Clave
-Persistencia y Consistencia: Se utiliza Transactional Outbox. Al guardar el evento y el mensaje pendiente en una misma transacción de base de datos, eliminamos el riesgo de perder información si el Broker de mensajería falla o se desconecta tras recibir la petición HTTP.
+**PostgreSQL**  
+Almacenamiento persistente para los eventos recibidos y la tabla de Outbox.
 
-Desacoplamiento: Los componentes A y B son totalmente independientes. Esto permite escalar el número de Workers según la carga de procesamiento sin afectar la disponibilidad de la API de ingesta.
+## Decisiones Técnicas Clave
 
-Agnosticismo al Entorno: Toda la infraestructura está orquestada mediante Docker Compose, asegurando que el sistema se comporte de manera idéntica en desarrollo, pruebas y producción.
+**Persistencia y Consistencia**  
+Se utiliza Transactional Outbox. Al guardar el evento y el mensaje pendiente en una misma transacción de base de datos, se elimina el riesgo de perder información si el broker falla.
 
-Estructura del Proyecto
+**Desacoplamiento**  
+Los componentes A y B son independientes. Esto permite escalar los Workers sin afectar la disponibilidad de la API.
+
+**Agnosticismo al Entorno**  
+Toda la infraestructura está orquestada mediante Docker Compose.
+
+## Estructura del Proyecto
+
 ```plaintext
 ├── src/
-│   ├── Ingestion.Api/        # API de entrada de datos
-│   ├── Processor.Worker/     # Consumidor y procesador de eventos
-│   └── Ingestion.Core/       # Lógica de dominio y abstracciones
+│   ├── Ingestion.Api/
+│   ├── Processor.Worker/
+│   └── Ingestion.Core/
 │
-├── docker-compose.yml        # Orquestación de infraestructura y servicios
-├── stress_test.sh            # Script de validación de carga concurrente
-└── README.md                 # Documentación técnica
+├── docker-compose.yml
+├── stress_test.sh
+└── README.md
 ```
 
-Despliegue
-Desde la raíz del proyecto, ejecutar:
+## Guía de Ejecución
 
-Bash
+```bash
 docker-compose up --build
-La API recibira datos a esta ruta: http://localhost:5001/Ingestion/ingest POST
+```
 
-Validación de Carga (Stress Test)
-Para validar el procesamiento asíncrono y la concurrencia, ejecutar el script adjunto:
+API:
+http://localhost:5001/Ingestion/ingest
 
-Bash
+RabbitMQ:
+http://localhost:15672
+guest / guest
+
+## Validación de Carga
+
+```bash
 chmod +x stress_test.sh
 ./stress_test.sh
-Este script envía 50 peticiones concurrentes. El resultado del procesamiento se puede monitorear en tiempo real mediante los logs del worker:
+```
 
-Bash
+Logs:
+```bash
 docker logs -f processor-worker
-Monitoreo
-Se puede acceder al panel de administración de RabbitMQ para visualizar el flujo de colas:
+```
 
-URL: http://localhost:15672
+## Notas Multi-plataforma
 
-Credenciales: guest / guest
-
-## 📝 Notas de Compatibilidad (Multi-plataforma)
-
-El proyecto incluye un archivo `.gitattributes` para asegurar que los scripts de shell (`.sh`) mantengan el formato de fin de línea `LF`, evitando errores de ejecución en entornos Docker sobre Windows.
-
-**Si ejecutas en Windows y tienes problemas con el script de carga, puedes usar este comando en PowerShell:**
+En Windows puedes usar PowerShell:
 
 ```powershell
-1..50 | ForEach-Object { Invoke-RestMethod -Uri "http://localhost:5001/Ingestion/ingest" -Method Post -ContentType "application/json" -Body '{"payload": "Test masivo"}' }
+1..50 | ForEach-Object {
+ Invoke-RestMethod -Uri "http://localhost:5001/Ingestion/ingest" -Method Post -ContentType "application/json" -Body '{"payload":"Test masivo"}'
+}
 ```
