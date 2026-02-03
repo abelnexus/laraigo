@@ -2,6 +2,49 @@
 
 Este repositorio contiene una solución escalable para la ingesta masiva de datos y su procesamiento diferido, diseñada bajo principios de Alta Disponibilidad y Resiliencia.
 
+🔧 Tecnologías y Librerías Utilizadas
+Plataforma y Lenguaje
+
+.NET 8
+Framework principal para la construcción de la API y el Worker, aprovechando rendimiento, minimal hosting y Background Services.
+
+Persistencia de Datos
+
+PostgreSQL
+Base de datos relacional utilizada para la persistencia de eventos y la tabla Outbox.
+
+Entity Framework Core
+ORM utilizado para el acceso a datos, manejo de transacciones y mapeo de entidades.
+
+Mensajería Asíncrona
+
+RabbitMQ
+Message Broker utilizado para desacoplar la ingesta del procesamiento, soportar picos de carga y habilitar escalado horizontal.
+
+RabbitMQ.Client
+Cliente oficial para la publicación y consumo de mensajes desde .NET.
+
+Arquitectura y Patrones
+
+Arquitectura Orientada a Eventos (EDA)
+
+Transactional Outbox Pattern
+
+Background Workers (Hosted Services)
+
+Infraestructura y DevOps
+
+Docker
+Contenerización de todos los servicios.
+
+Docker Compose
+Orquestación local de PostgreSQL, RabbitMQ, API y Workers.
+
+Testing y Validación
+
+Script Bash de Stress Test
+Utilizado para validar concurrencia, backpressure y procesamiento asíncrono.
+
 <img width="1536" height="1024" alt="diagrama" src="https://github.com/user-attachments/assets/88f3b187-ccee-4086-aeb0-66463d17ab05" />
 
 ## Arquitectura de la Solución
