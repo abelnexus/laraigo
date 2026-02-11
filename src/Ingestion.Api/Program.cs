@@ -12,35 +12,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         x => x.MigrationsAssembly("Ingestion.Api") 
     ));
 
-
-// 2. RabbitMQ corregido para Docker
-builder.Services.AddSingleton<IConnection>(sp =>
-{
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    var factory = new ConnectionFactory
-    {
-        // CAMBIO: Ahora usamos coma al final
-        HostName = configuration["RabbitMQ:Host"] ?? "localhost", 
-        Port = 5672
-        // Si tu versión de RabbitMQ es la 6.x+, DispatchConsumersAsync es por defecto
-    };
-
-    int retries = 5;
-    while (retries > 0)
-    {
-        try
-        {
-            return factory.CreateConnection();
-        }
-        catch (Exception ex)
-        {
-            retries--;
-            Console.WriteLine($"RabbitMQ no responde. Reintentando... ({retries} intentos restantes). Error: {ex.Message}");
-            Thread.Sleep(5000); 
-        }
-    }
-    throw new Exception("No se pudo conectar a RabbitMQ después de varios intentos.");
+// Registrar la fábrica, NO la conexión activa
+builder.Services.AddSingleton(new ConnectionFactory() { 
+    HostName = "rabbitmq", 
+    DispatchConsumersAsync = true 
 });
+
+// Registrar tu nuevo Worker de Outbox
+builder.Services.AddHostedService<OutboxPublisherWorker>();
 
 builder.Services.AddControllers();
 
