@@ -12,8 +12,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         x => x.MigrationsAssembly("Ingestion.Api") 
     ));
 
-
-// 2. RabbitMQ corregido para Docker
 builder.Services.AddSingleton<IConnection>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
